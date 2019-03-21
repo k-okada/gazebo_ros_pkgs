@@ -110,12 +110,12 @@ namespace gazebo {
         // Get pointers to joints
         joint_ = model_->GetJoint(joint_name_);
         if (!joint_) {
-          ROS_ERROR_STREAM("No joint named \"" << joint_name_ << " " << mimic_joint_name_  << "\". MimicJointPlugin could not be loaded.");
+          ROS_ERROR_STREAM_NAMED("MimicJointPlugin","No joint named \"" << joint_name_ << " " << mimic_joint_name_  << "\". MimicJointPlugin could not be loaded.");
             return;
         }
         mimic_joint_ = model_->GetJoint(mimic_joint_name_);
         if (!mimic_joint_) {
-          ROS_ERROR_STREAM("No (mimic) joint named \"" << mimic_joint_name_ << " " << joint_name_ << "\". MimicJointPlugin could not be loaded.");
+          ROS_ERROR_STREAM_NAMED("MimicJointPlugin","No (mimic) joint named \"" << mimic_joint_name_ << " " << joint_name_ << "\". MimicJointPlugin could not be loaded.");
             return;
         }
 
@@ -144,7 +144,7 @@ namespace gazebo {
             boost::bind(&MimicJointPlugin::UpdateChild, this));
 
         // Output some confirmation
-        ROS_INFO_STREAM("MimicJointPlugin loaded! Joint: \"" << joint_name_ << "\", Mimic joint: \"" << mimic_joint_name_ << "\""
+        ROS_INFO_STREAM_NAMED("MimicJointPlugin", "MimicJointPlugin loaded! Joint: \"" << joint_name_ << "\", Mimic joint: \"" << mimic_joint_name_ << "\""
                                                              << ", Multiplier: " << multiplier_ << ", Offset: " << offset_
                                                              << ", MaxEffort: " << max_effort_ << ", Sensitiveness: " << sensitiveness_);
     }
@@ -178,10 +178,10 @@ namespace gazebo {
 #if GAZEBO_MAJOR_VERSION >= 9
                 mimic_joint_->SetPosition(0, angle, true);
 #elif GAZEBO_MAJOR_VERSION > 2
-                ROS_WARN_ONCE("The mimic_joint plugin is using the Joint::SetPosition method without preserving the link velocity.");
-                ROS_WARN_ONCE("As a result, gravity will not be simulated correctly for your model.");
-                ROS_WARN_ONCE("Please set gazebo_pid parameters or upgrade to Gazebo 9.");
-                ROS_WARN_ONCE("For details, see https://github.com/ros-simulation/gazebo_ros_pkgs/issues/612");
+                ROS_WARN_ONCE_NAMED("MimicJointPlugin","The mimic_joint plugin is using the Joint::SetPosition method without preserving the link velocity.");
+                ROS_WARN_ONCE_NAMED("MimicJointPlugin","As a result, gravity will not be simulated correctly for your model.");
+                ROS_WARN_ONCE_NAMED("MimicJointPlugin","Please set gazebo_pid parameters or upgrade to Gazebo 9.");
+                ROS_WARN_ONCE_NAMED("MimicJointPlugin","For details, see https://github.com/ros-simulation/gazebo_ros_pkgs/issues/612");
                 mimic_joint_->SetPosition(0, angle);
 #else
                 mimic_joint_->SetAngle(0, math::Angle(angle));
