@@ -132,8 +132,10 @@ namespace gazebo {
         // Set max effort
         if (!has_pid_) {
 #if GAZEBO_MAJOR_VERSION > 2
+            ROS_DEBUG_STREAM_NAMED("MimicJointPlugin", "No pid is sed, call mimic_joint(" << mimic_joint_name_ << " )->SetEffortLimit(0, " << max_effort_ << ");");
             mimic_joint_->SetEffortLimit(0, max_effort_);
 #else
+            ROS_DEBUG_STREAM_NAMED("MimicJointPlugin", "No pid is sed, call mimic_joint(" << mimic_joint_name_ << " )->SetMaxForce(0, " << max_effort_ << ");");
             mimic_joint_->SetMaxForce(0, max_effort_);
 #endif
         }
@@ -144,7 +146,10 @@ namespace gazebo {
             boost::bind(&MimicJointPlugin::UpdateChild, this));
 
         // Output some confirmation
+        double p, i, d, i_max, i_min;
+        pid_.getGains(p, i, d, i_max, i_min);
         ROS_INFO_STREAM_NAMED("MimicJointPlugin", "MimicJointPlugin loaded! Joint: \"" << joint_name_ << "\", Mimic joint: \"" << mimic_joint_name_ << "\""
+                                                             << ", Gains p: " << p << ", i: " << i << ", d: " << d << ", i_max: " << i_max << ", i_min: " << i_min
                                                              << ", Multiplier: " << multiplier_ << ", Offset: " << offset_
                                                              << ", MaxEffort: " << max_effort_ << ", Sensitiveness: " << sensitiveness_);
     }
@@ -165,13 +170,14 @@ namespace gazebo {
         double angle = joint_->GetAngle(0).Radian() * multiplier_ + offset_;
         double a = mimic_joint_->GetAngle(0).Radian();
 #endif
-
+        ROS_DEBUG_STREAM_NAMED("MimicJointPlugin", joint_name_ << " : " << angle << ", " << mimic_joint_name_ << " : " << a << ", fabs(angle-a) : " << fabs(angle-a) << " >= " << sensitiveness_);
         if (fabs(angle - a) >= sensitiveness_) {
             if (has_pid_) {
                 if (a != a)
                     a = angle;
                 double error = angle - a;
                 double effort = math::clamp(pid_.computeCommand(error, period), -max_effort_, max_effort_);
+                ROS_DEBUG_STREAM_NAMED("MimicJointPlugin", "error : " << error << ", effort : " << effort);
                 mimic_joint_->SetForce(0, effort);
             }
             else {
