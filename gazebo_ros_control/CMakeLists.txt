@@ -67,8 +67,11 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 add_library(default_robot_hw_sim src/default_robot_hw_sim.cpp)
 target_link_libraries(default_robot_hw_sim ${catkin_LIBRARIES})
 
+add_library(gazebo_ros_mimic_joint_plugin src/gazebo_ros_mimic_joint_plugin.cpp)
+target_link_libraries(gazebo_ros_mimic_joint_plugin ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+
 ## Install
-install(TARGETS ${PROJECT_NAME} default_robot_hw_sim
+install(TARGETS ${PROJECT_NAME} default_robot_hw_sim gazebo_ros_mimic_joint_plugin
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
 
